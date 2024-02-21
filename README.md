@@ -1,2 +1,2 @@
 # Kahaniya
-mpm run dev
+npm run dev
