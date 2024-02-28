@@ -1,5 +1,4 @@
-import User from "../models/UserModel.js";
 
-export const registerController = async (req, res) =>{
+export const register = async (req, res) =>{
     console.log(hii);
 }       
