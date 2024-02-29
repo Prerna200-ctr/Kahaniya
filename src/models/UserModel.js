@@ -30,7 +30,7 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    loginType: {
+    userType: {
       type: String,
       enum: ["reader", "writer", "publisher", "creators", "brands"],
       default: "reader",

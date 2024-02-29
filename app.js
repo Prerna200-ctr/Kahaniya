@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import { models } from "./src/models/index.js";
+import { routes } from "./src/routes/index.js";
 
 const app = express();
 app.use(
@@ -21,4 +22,5 @@ app.use((req, res, next) => {
   };
   next();
 });
+app.use("/", routes.userRouter);
 export { app };
