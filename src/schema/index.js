@@ -1,5 +1,6 @@
-import { registerSchema } from "./registerSchema.js";
+import { registerSchema, loginSchema } from "./userSchema.js";
 
 export const userSchema = {
   registerSchema,
+  loginSchema,
 };

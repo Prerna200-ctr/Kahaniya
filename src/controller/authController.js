@@ -25,7 +25,7 @@ export const register = asyncHandler(async (req, res) => {
     const user = await User.create(body);
     const createdUser = await User.findById(user._id).select(
       "-password -refreshToken"
-    );
+    );  
     if (!createdUser) {
       throw new ApiError(
         500,
@@ -35,6 +35,74 @@ export const register = asyncHandler(async (req, res) => {
     res
       .status(201)
       .json(new ApiResponse(200, createdUser, "User registered Successfully"));
+  } catch (error) {
+    console.log(error);
+    res.status(404).send(error);
+  }
+});
+
+export const login = asyncHandler(async (req, res) => {
+  try {
+    const {
+      Context: {
+        models: { User },
+      },
+    } = req;
+    const { body } = req;
+    const validationError = validateObject(body, userSchema?.loginSchema);
+    if (validationError) {
+      console.log(validationError);
+      return res.status(400).send({ validationError });
+    }
+    const existingUser = await User.findOne({ email: body?.email });
+    if (!existingUser) {
+      throw new ApiError(409, "Please register");
+    }
+  
+    const passwordCorrect = await existingUser.isPasswordCorrect(
+      body?.password
+    );
+    if (!passwordCorrect) {
+      throw new ApiError(409, "incorrect password");
+    }
+    const token = existingUser.generateAccessToken();
+    res
+      .status(201)
+      .json(new ApiResponse(200, token, "User logged in successfully"));
+  } catch (error) {
+    console.log(error);
+    res.status(404).send(error);
+  }
+});
+
+export const updateUser = asyncHandler(async (req, res) => {
+  try {
+    const {
+      Context: {
+        models: { User },
+      },
+    } = req;
+    const { body } = req;
+    const validationError = validateObject(body, userSchema?.loginSchema);
+    if (validationError) {
+      console.log(validationError);
+      return res.status(400).send({ validationError });
+    }
+    const existingUser = await User.findOne({ email: body?.email });
+    if (!existingUser) {
+      throw new ApiError(409, "Please register");
+    }
+
+    const passwordCorrect = await existingUser.isPasswordCorrect(
+      body?.password
+    );
+    if (!passwordCorrect) {
+      throw new ApiError(409, "incorrect password");
+    }
+    const token = existingUser.generateAccessToken();
+    res
+      .status(201)
+      .json(new ApiResponse(200, token, "User logged in successfully"));
   } catch (error) {
     console.log(error);
     res.status(404).send(error);
