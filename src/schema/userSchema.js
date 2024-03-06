@@ -28,3 +28,44 @@ export const loginSchema = Joi.object({
       "any.required": `Password is required`,
     }),
 });
+
+export const updateSchema = Joi.object({
+  name: Joi.string(),
+  email: Joi.string().email(),
+  password: Joi.string()
+    .min(8)
+    .max(10)
+    .regex(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
+    )
+    .messages({
+      "string.pattern.base": `Password should be between 3 to 10 characters and must conatain at least one letter (lowercase and uppercase both) and one digit and one special chacacter`,
+      "string.empty": `Password cannot be empty`,
+      "any.required": `Password is required`,
+    }),
+});
+
+export const changePasswordSchema = Joi.object({
+  oldPassword: Joi.string()
+    .min(8)
+    .max(10)
+    .regex(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
+    )
+    .messages({
+      "string.pattern.base": `Password should be between 3 to 10 characters and must conatain at least one letter (lowercase and uppercase both) and one digit and one special chacacter`,
+      "string.empty": `Password cannot be empty`,
+      "any.required": `Password is required`,
+    }),
+  newPassword: Joi.string()
+    .min(8)
+    .max(10)
+    .regex(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
+    )
+    .messages({
+      "string.pattern.base": `Password should be between 3 to 10 characters and must conatain at least one letter (lowercase and uppercase both) and one digit and one special chacacter`,
+      "string.empty": `Password cannot be empty`,
+      "any.required": `Password is required`,
+    }),
+});
