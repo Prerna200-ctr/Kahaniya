@@ -3,6 +3,7 @@ import {
   loginSchema,
   updateSchema,
   changePasswordSchema,
+  forgetPasswordSchema,
 } from "./userSchema.js";
 
 export const userSchema = {
@@ -10,4 +11,5 @@ export const userSchema = {
   loginSchema,
   updateSchema,
   changePasswordSchema,
+  forgetPasswordSchema,
 };

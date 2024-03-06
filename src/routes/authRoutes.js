@@ -3,6 +3,7 @@ import {
   login,
   updateUser,
   changePassword,
+  forgetPassword
 } from "../controller/authController.js";
 
 import express from "express";
@@ -16,5 +17,7 @@ userRouter.post("/register", register);
 userRouter.post("/login", login);
 userRouter.put("/update", authMiddleware, updateUser);
 userRouter.put("/change-password", authMiddleware, changePassword);
+userRouter.put("/forgot-password", forgetPassword);
+
 
 export default userRouter;
