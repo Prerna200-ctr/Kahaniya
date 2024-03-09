@@ -1,5 +1,6 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
+import { generateAccessToken } from "../utils/generateResetToken.js";
 import validateObject from "../utils/validation.js";
 import { userSchema } from "../schema/index.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
@@ -16,7 +17,7 @@ export const register = asyncHandler(async (req, res) => {
     const validationError = validateObject(body, userSchema?.registerSchema);
 
     if (validationError) {
-      console.log(validationError);
+
       return res.status(400).send({ validationError });
     }
     const existingUser = await User.findOne({ email: body?.email });
@@ -52,7 +53,6 @@ export const login = asyncHandler(async (req, res) => {
     const { body } = req;
     const validationError = validateObject(body, userSchema?.loginSchema);
     if (validationError) {
-      console.log(validationError);
       return res.status(400).send({ validationError });
     }
     const existingUser = await User.findOne({ email: body?.email });
@@ -89,6 +89,7 @@ export const updateUser = asyncHandler(async (req, res) => {
     if (validationError) {
       return res.status(400).send({ validationError });
     }
+
     const update = await User.findByIdAndUpdate(user?._id, body, { new: true });
     res
       .status(201)
@@ -150,12 +151,75 @@ export const forgetPassword = asyncHandler(async (req, res) => {
     if (!existingUser) {
       throw new ApiError(409, "Please register");
     }
-    await User.findByIdAndUpdate(
+
+    const resetToken = generateAccessToken();
+
+    const resetTokenExpiry = new Date().setHours(new Date().getHours() + 1);
+
+
+    // await sendMail([user.email], process.env.RESET_PASSWORD_TEMPLATE_ID, {
+    //   UserName: user.lastName,
+    //   link: `${process.env.FRONTEND_URL}reset-password/${token}`,
+    // })
+
+    const update = await User.findByIdAndUpdate(
       existingUser?._id,
-      { password: await bcrypt.hash(body?.newPassword, 10) },
-      { new: true }
+      { resetToken, expiryToken: resetTokenExpiry },
+      {
+        new: true,
+      }
     );
+
+    if (!update) {
+      throw new ApiError(409, "Something went wrong");
+    }
+    res.status(201).json(new ApiResponse(200, true));
+  } catch (error) {
+    console.log(error);
+    res.status(404).send(error);
+  }
+});
+
+export const resetPassword = asyncHandler(async (req, res) => {
+  try {
+    const {
+      Context: {
+        models: { User },
+      },
+    } = req;
+    const { body } = req;
+    const validationError = validateObject(
+      body,
+      userSchema?.resetPasswordSchema
+    );
+    if (validationError) {
+      return res.status(400).send({ validationError });
+    }
+    const { resetToken, newPassword } = body;
+    const user = await User.findOne({
+      resetToken,
+      resetTokenExpiry: { $gt: Date.now },
+    });
+    if (!user) {
+      throw new ApiError(409, "Please register");
+    }
+    
+    user.password = newPassword;
+    user.resetToken = null;
+    user.expiryToken = null;
+
+    await user.save();
     res.status(201).json(new ApiResponse(200, "Password updated successfully"));
+  } catch (error) {
+    console.log(error);
+    res.status(404).send(error);
+  }
+});
+
+export const currentUser = asyncHandler(async (req, res) => {
+  try {
+    const { user } = req;
+    res.status(201).json(new ApiResponse(200, user));
   } catch (error) {
     console.log(error);
     res.status(404).send(error);

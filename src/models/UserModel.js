@@ -20,11 +20,10 @@ const userSchema = new mongoose.Schema(
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
     },
     resetToken: {
-      type: String,
+      type: Number,
     },
     expiryToken: {
-      type: String,
-      min: [6, "Invalid access token"],
+      type: Date,
     },
     isActive: {
       type: Boolean,
@@ -41,13 +40,14 @@ const userSchema = new mongoose.Schema(
 
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
-
   this.password = await bcrypt.hash(this.password, 10);
   next();
 });
 
 userSchema.methods.isPasswordCorrect = async function (password) {
-  return bcrypt.compare(password, this.password);
+  console.log(password, "in bycrypt password");
+  console.log(await bcrypt.compare(password, this.password), "await");
+  return await bcrypt.compare(password, this.password);
 };
 
 userSchema.methods.generateAccessToken = function () {

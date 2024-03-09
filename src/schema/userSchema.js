@@ -72,7 +72,11 @@ export const changePasswordSchema = Joi.object({
 
 export const forgetPasswordSchema = Joi.object({
   email: Joi.string().email().required(),
+});
+
+export const resetPasswordSchema = Joi.object({
   newPassword: Joi.string()
+    .required()
     .min(8)
     .max(10)
     .regex(
@@ -83,5 +87,6 @@ export const forgetPasswordSchema = Joi.object({
       "string.empty": `Password cannot be empty`,
       "any.required": `Password is required`,
     }),
+  resetToken: Joi.number().required().min(6),
+  
 });
-
