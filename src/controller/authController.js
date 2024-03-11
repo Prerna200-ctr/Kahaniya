@@ -1,10 +1,10 @@
-import { asyncHandler } from "../utils/asyncHandler.js";
-import { ApiError } from "../utils/ApiError.js";
-import { generateAccessToken } from "../utils/generateResetToken.js";
-import validateObject from "../utils/validation.js";
-import { userSchema } from "../schema/index.js";
-import { ApiResponse } from "../utils/ApiResponse.js";
-import bcrypt from "bcryptjs";
+import { asyncHandler } from '../utils/asyncHandler.js'
+import { ApiError } from '../utils/ApiError.js'
+import { generateAccessToken } from '../utils/generateResetToken.js'
+import validateObject from '../utils/validation.js'
+import { userSchema } from '../schema/index.js'
+import { ApiResponse } from '../utils/ApiResponse.js'
+import bcrypt from 'bcryptjs'
 
 export const register = asyncHandler(async (req, res) => {
   try {
@@ -12,36 +12,32 @@ export const register = asyncHandler(async (req, res) => {
       Context: {
         models: { User },
       },
-    } = req;
-    const { body } = req;
-    const validationError = validateObject(body, userSchema?.registerSchema);
+    } = req
+    const { body } = req
+    const validationError = validateObject(body, userSchema?.registerSchema)
 
     if (validationError) {
-
-      return res.status(400).send({ validationError });
+      return res.status(400).send({ validationError })
     }
-    const existingUser = await User.findOne({ email: body?.email });
+    const existingUser = await User.findOne({ email: body?.email })
     if (existingUser) {
-      throw new ApiError(409, "User with email or username already exists");
+      throw new ApiError(409, 'User with email or username already exists')
     }
-    const user = await User.create(body);
+    const user = await User.create(body)
     const createdUser = await User.findById(user._id).select(
-      "-password -refreshToken"
-    );
+      '-password -refreshToken'
+    )
     if (!createdUser) {
-      throw new ApiError(
-        500,
-        "Something went wrong while registering the user"
-      );
+      throw new ApiError(500, 'Something went wrong while registering the user')
     }
     res
       .status(201)
-      .json(new ApiResponse(200, createdUser, "User registered Successfully"));
+      .json(new ApiResponse(200, createdUser, 'User registered Successfully'))
   } catch (error) {
-    console.log(error);
-    res.status(404).send(error);
+    console.log(error)
+    res.status(404).send(error)
   }
-});
+})
 
 export const login = asyncHandler(async (req, res) => {
   try {
@@ -49,32 +45,35 @@ export const login = asyncHandler(async (req, res) => {
       Context: {
         models: { User },
       },
-    } = req;
-    const { body } = req;
-    const validationError = validateObject(body, userSchema?.loginSchema);
+    } = req
+    const { body } = req
+    const validationError = validateObject(body, userSchema?.loginSchema)
     if (validationError) {
-      return res.status(400).send({ validationError });
-    }
-    const existingUser = await User.findOne({ email: body?.email });
-    if (!existingUser) {
-      throw new ApiError(409, "Please register");
+      return res.status(400).send({ validationError })
     }
 
-    const passwordCorrect = await existingUser.isPasswordCorrect(
-      body?.password
-    );
-    if (!passwordCorrect) {
-      throw new ApiError(409, "incorrect password");
+    const existingUser = await User.findOne({
+      email: body?.email,
+      isDeletionDate: [{ $lte: Date.now }, null],
+    })
+
+    if (!existingUser) {
+      throw new ApiError(409, 'Please register')
     }
-    const token = existingUser.generateAccessToken();
+
+    const passwordCorrect = await existingUser.isPasswordCorrect(body?.password)
+    if (!passwordCorrect) {
+      throw new ApiError(409, 'incorrect password')
+    }
+    const token = existingUser.generateAccessToken()
     res
       .status(201)
-      .json(new ApiResponse(200, token, "User logged in successfully"));
+      .json(new ApiResponse(200, token, 'User logged in successfully'))
   } catch (error) {
-    console.log(error);
-    res.status(404).send(error);
+    console.log(error)
+    res.status(404).send(error)
   }
-});
+})
 
 export const updateUser = asyncHandler(async (req, res) => {
   try {
@@ -83,22 +82,22 @@ export const updateUser = asyncHandler(async (req, res) => {
         models: { User },
       },
       user,
-    } = req;
-    const { body } = req;
-    const validationError = validateObject(body, userSchema?.updateSchema);
+    } = req
+    const { body } = req
+    const validationError = validateObject(body, userSchema?.updateSchema)
     if (validationError) {
-      return res.status(400).send({ validationError });
+      return res.status(400).send({ validationError })
     }
 
-    const update = await User.findByIdAndUpdate(user?._id, body, { new: true });
+    const update = await User.findByIdAndUpdate(user?._id, body, { new: true })
     res
       .status(201)
-      .json(new ApiResponse(200, update, "User updated successfully"));
+      .json(new ApiResponse(200, update, 'User updated successfully'))
   } catch (error) {
-    console.log(error);
-    res.status(404).send(error);
+    console.log(error)
+    res.status(404).send(error)
   }
-});
+})
 
 export const changePassword = asyncHandler(async (req, res) => {
   try {
@@ -107,30 +106,30 @@ export const changePassword = asyncHandler(async (req, res) => {
         models: { User },
       },
       user,
-    } = req;
-    const { body } = req;
+    } = req
+    const { body } = req
     const validationError = validateObject(
       body,
       userSchema?.changePasswordSchema
-    );
+    )
     if (validationError) {
-      return res.status(400).send({ validationError });
+      return res.status(400).send({ validationError })
     }
-    const passwordCorrect = await user.isPasswordCorrect(body?.oldPassword);
+    const passwordCorrect = await user.isPasswordCorrect(body?.oldPassword)
     if (!passwordCorrect) {
-      throw new ApiError(409, "incorrect password");
+      throw new ApiError(409, 'incorrect password')
     }
     await User.findByIdAndUpdate(
       user?._id,
       { password: await bcrypt.hash(body?.newPassword, 10) },
       { new: true }
-    );
-    res.status(201).json(new ApiResponse(200, "Password updated successfully"));
+    )
+    res.status(201).json(new ApiResponse(200, 'Password updated successfully'))
   } catch (error) {
-    console.log(error);
-    res.status(404).send(error);
+    console.log(error)
+    res.status(404).send(error)
   }
-});
+})
 
 export const forgetPassword = asyncHandler(async (req, res) => {
   try {
@@ -138,24 +137,26 @@ export const forgetPassword = asyncHandler(async (req, res) => {
       Context: {
         models: { User },
       },
-    } = req;
-    const { body } = req;
+    } = req
+    const { body } = req
     const validationError = validateObject(
       body,
       userSchema?.forgetPasswordSchema
-    );
+    )
     if (validationError) {
-      return res.status(400).send({ validationError });
+      return res.status(400).send({ validationError })
     }
-    const existingUser = await User.findOne({ email: body?.email });
+    const existingUser = await User.findOne({
+      email: body?.email,
+      isActive: true,
+    })
     if (!existingUser) {
-      throw new ApiError(409, "Please register");
+      throw new ApiError(409, 'Please register')
     }
 
-    const resetToken = generateAccessToken();
+    const resetToken = generateAccessToken()
 
-    const resetTokenExpiry = new Date().setHours(new Date().getHours() + 1);
-
+    const resetTokenExpiry = new Date().setHours(new Date().getHours() + 1)
 
     // await sendMail([user.email], process.env.RESET_PASSWORD_TEMPLATE_ID, {
     //   UserName: user.lastName,
@@ -168,17 +169,17 @@ export const forgetPassword = asyncHandler(async (req, res) => {
       {
         new: true,
       }
-    );
+    )
 
     if (!update) {
-      throw new ApiError(409, "Something went wrong");
+      throw new ApiError(409, 'Something went wrong')
     }
-    res.status(201).json(new ApiResponse(200, true));
+    res.status(201).json(new ApiResponse(200, true))
   } catch (error) {
-    console.log(error);
-    res.status(404).send(error);
+    console.log(error)
+    res.status(404).send(error)
   }
-});
+})
 
 export const resetPassword = asyncHandler(async (req, res) => {
   try {
@@ -186,42 +187,64 @@ export const resetPassword = asyncHandler(async (req, res) => {
       Context: {
         models: { User },
       },
-    } = req;
-    const { body } = req;
+    } = req
+    const { body } = req
     const validationError = validateObject(
       body,
       userSchema?.resetPasswordSchema
-    );
+    )
     if (validationError) {
-      return res.status(400).send({ validationError });
+      return res.status(400).send({ validationError })
     }
-    const { resetToken, newPassword } = body;
+    const { resetToken, newPassword } = body
     const user = await User.findOne({
       resetToken,
       resetTokenExpiry: { $gt: Date.now },
-    });
+    })
     if (!user) {
-      throw new ApiError(409, "Please register");
+      throw new ApiError(409, 'Please register')
     }
-    
-    user.password = newPassword;
-    user.resetToken = null;
-    user.expiryToken = null;
 
-    await user.save();
-    res.status(201).json(new ApiResponse(200, "Password updated successfully"));
+    user.password = newPassword
+    user.resetToken = null
+    user.expiryToken = null
+
+    await user.save()
+    res.status(201).json(new ApiResponse(200, 'Password updated successfully'))
   } catch (error) {
-    console.log(error);
-    res.status(404).send(error);
+    console.log(error)
+    res.status(404).send(error)
   }
-});
+})
 
 export const currentUser = asyncHandler(async (req, res) => {
   try {
-    const { user } = req;
-    res.status(201).json(new ApiResponse(200, user));
+    const { user } = req
+    res.status(201).json(new ApiResponse(200, user))
   } catch (error) {
-    console.log(error);
-    res.status(404).send(error);
+    console.log(error)
+    res.status(404).send(error)
   }
-});
+})
+
+export const deleteUser = asyncHandler(async (req, res) => {
+  try {
+    const {
+      Context: {
+        models: { User },
+      },
+      user,
+    } = req
+
+    await findByIdAndUpdate(user?._id, {
+      isActive: false,
+      isDeletion: new Date().getDate() + 10,
+    })
+
+    res.status(201).json(new ApiResponse(200, 'Account scheduled for deletion'))
+  } catch (error) {
+    res.status(404).send(error)
+  }
+})
+
+

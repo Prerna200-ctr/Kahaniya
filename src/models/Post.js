@@ -1,25 +1,37 @@
-import mongoose from "mongoose";
+import { Schema, model } from 'mongoose'
 
-const postSchema = new mongoose.Schema(
+const postSchema = new Schema(
   {
-    name: {
+    title: {
       type: String,
     },
-    email: {
-      type: String,
-      unique: true,
-      //   sparse: true,
-    },
-    password: {
+    description: {
       type: String,
     },
-    resetToken: {
+    media: {
       type: String,
+    },
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+    },
+    categoryId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Category',
+    },
+    isPaid: {
+      type: Boolean,
+    },
+    isFree: {
+      type: Boolean,
+    },
+    tagged: {
+      type: [Schema.Types.ObjectId],
+      ref: 'User',
     },
   },
   { timestamps: true }
-);
+)
 
-const Post = mongoose.model("Post", postSchema);
-
-export default Post;
+const Post = new model('Post', postSchema)
+export default Post
