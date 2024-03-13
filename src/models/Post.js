@@ -1,4 +1,5 @@
 import { Schema, model } from 'mongoose'
+import Category from './Category.js'
 
 const postSchema = new Schema(
   {
@@ -15,15 +16,13 @@ const postSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: 'User',
     },
-    categoryId: {
+    category: {
       type: Schema.Types.ObjectId,
       ref: 'Category',
     },
     isPaid: {
       type: Boolean,
-    },
-    isFree: {
-      type: Boolean,
+      default: false,
     },
     tagged: {
       type: [Schema.Types.ObjectId],

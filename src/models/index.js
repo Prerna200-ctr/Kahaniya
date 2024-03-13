@@ -5,5 +5,5 @@ import Category from './Category.js'
 export const models = {
     User,
     Post,
-    Category
+    Category,
 }

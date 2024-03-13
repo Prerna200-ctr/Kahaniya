@@ -3,7 +3,6 @@ import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import { models } from './src/models/index.js'
 import { routes } from './src/routes/index.js'
-import { deleteCron } from './src/utils/deleteAccounts.js'
 
 const app = express()
 app.use(
@@ -25,4 +24,7 @@ app.use((req, res, next) => {
 })
 
 app.use('/', routes.userRouter)
+app.use('/post', routes.postRouter)
+app.use('/category', routes.categoryRouter)
+
 export { app }

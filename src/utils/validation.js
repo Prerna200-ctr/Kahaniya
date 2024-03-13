@@ -3,5 +3,4 @@ const validateObject = (obj, schema) => {
   return error ? error.details[0].message : null;
 };
 
-
 export default validateObject;

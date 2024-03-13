@@ -7,6 +7,8 @@ import {
   resetPasswordSchema,
 } from "./userSchema.js";
 
+import { createPostSchema } from "./postSchema.js";
+import { createCategorySchema } from "./categorySchema.js";
 export const userSchema = {
   registerSchema,
   loginSchema,
@@ -15,3 +17,11 @@ export const userSchema = {
   forgetPasswordSchema,
   resetPasswordSchema,
 };
+
+export const postSchema = {
+  createPostSchema
+}
+
+export const categorySchema = {
+  createCategorySchema
+}

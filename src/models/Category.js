@@ -3,7 +3,7 @@ const categorySchema = new Schema(
   {
     categories: {
       type: String,
-      enum: ['Crime', 'Love', 'Mystery', 'Thrill', 'Horror'],
+      enum: ['Crime', 'Love', 'Mystery', 'Thrill', 'Horror', 'Personal development', 'Adult'],
     },
     followers: {
       type: [Schema.Types.ObjectId],
