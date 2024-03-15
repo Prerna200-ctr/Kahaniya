@@ -24,3 +24,5 @@ userRouter.post("/reset-password", resetPassword);
 userRouter.get("/current-user", authMiddleware, currentUser);
 
 export default userRouter;
+
+
