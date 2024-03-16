@@ -8,7 +8,7 @@ export const createPost = asyncHandler(async (req, res) => {
   try {
     const {
       Context: {
-        models: { Post, Category },
+        models: { Post, Category, PostActivity },
         user,
       },
     } = req;
@@ -31,8 +31,16 @@ export const createPost = asyncHandler(async (req, res) => {
       category: existingCategory?._id,
       userId: user?._id,
     });
+
+    if (!post) {
+      throw new ApiError(400, "Something went wrong");
+    }
+
+    await PostActivity.create({ postId: post?._id });
+
     res.status(201).json(new ApiResponse(200, post, "Post created"));
   } catch (error) {
+    console.log(error);
     res.status(404).send(error);
   }
 });

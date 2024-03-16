@@ -1,5 +1,5 @@
-import { Schema, model } from 'mongoose'
-import Category from './Category.js'
+import { Schema, model } from "mongoose";
+import Category from "./Category.js";
 
 const postSchema = new Schema(
   {
@@ -14,11 +14,11 @@ const postSchema = new Schema(
     },
     userId: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
     },
     category: {
       type: Schema.Types.ObjectId,
-      ref: 'Category',
+      ref: "Category",
     },
     isPaid: {
       type: Boolean,
@@ -26,11 +26,11 @@ const postSchema = new Schema(
     },
     tagged: {
       type: [Schema.Types.ObjectId],
-      ref: 'User',
+      ref: "User",
     },
   },
   { timestamps: true }
-)
+);
 
-const Post = new model('Post', postSchema)
-export default Post
+const Post = new model("Post", postSchema);
+export default Post;

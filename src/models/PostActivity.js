@@ -1,4 +1,4 @@
-import { Schema, model } from 'mongoose'
+import { Schema, model } from "mongoose";
 
 const postActivitySchema = new Schema(
   {
@@ -14,11 +14,17 @@ const postActivitySchema = new Schema(
     },
     postId: {
       type: Schema.Types.ObjectId,
-      ref: 'Post',
+      ref: "Post",
     },
+    likedBy: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
   },
   { timestamps: true }
-)
+);
 
-const PostActivity = new model('PostActivity', postActivitySchema)
-export default PostActivity
+const PostActivity = new model("PostActivity", postActivitySchema);
+export default PostActivity;
