@@ -22,6 +22,12 @@ const postActivitySchema = new Schema(
         ref: "User",
       },
     ],
+    commentBy: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
   },
   { timestamps: true }
 );

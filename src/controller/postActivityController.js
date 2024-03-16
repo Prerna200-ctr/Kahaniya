@@ -27,7 +27,36 @@ export const likeDislikePosts = asyncHandler(async (req, res) => {
       postActivity.like -= 1;
     }
     await postActivity.save();
-    res.status(201).json(new ApiResponse(200, postActivity));
+    res
+      .status(201)
+      .json(new ApiResponse(200, isLike ? "One like added" : "Dislike"));
+  } catch (error) {
+    res.status(404).send(error);
+  }
+});
+
+export const commentPosts = asyncHandler(async (req, res) => {
+  try {
+    const {
+      Context: {
+        models: { PostActivity },
+      },
+      body: { comment, postId },
+      user,
+    } = req;
+
+    const newActivity = await PostActivity.findOneAndUpdate(
+      { postId },
+      {
+        $addToSet: { commentBy: user?._id },
+        $push: { comments: comment },
+      },
+      { new: true }
+    );
+
+    console.log(newActivity);
+
+    res.status(201).json(new ApiResponse(200, "Comment added successfully"));
   } catch (error) {
     res.status(404).send(error);
   }
