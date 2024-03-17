@@ -241,7 +241,7 @@ export const deleteUser = asyncHandler(async (req, res) => {
       user,
     } = req;
 
-    await findByIdAndUpdate(user?._id, {
+    await User.findByIdAndUpdate(user?._id, {
       isActive: false,
       isDeletion: new Date().getDate() + 10,
     });
