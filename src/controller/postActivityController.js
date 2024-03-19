@@ -1,5 +1,5 @@
-import { ApiResponse } from "../utils/ApiResponse.js";
-import { asyncHandler } from "../utils/asyncHandler.js";
+import { ApiResponse } from '../utils/ApiResponse.js'
+import { asyncHandler } from '../utils/asyncHandler.js'
 
 export const likeDislikePosts = asyncHandler(async (req, res) => {
   try {
@@ -9,29 +9,29 @@ export const likeDislikePosts = asyncHandler(async (req, res) => {
       },
       body: { isLike, postId },
       user,
-    } = req;
+    } = req
 
-    let postActivity = await PostActivity.findOne({ postId });
+    let postActivity = await PostActivity.findOne({ postId })
 
     if (isLike) {
       if (!postActivity.likedBy.includes(user?._id)) {
-        postActivity.likedBy.push(user?._id);
-        postActivity.like += 1;
+        postActivity.likedBy.push(user?._id)
+        postActivity.like += 1
       }
     } else if (postActivity.likedBy.includes(user?._id)) {
       await PostActivity.findOneAndUpdate(
         { _id: postActivity?._id },
         { $pull: { likedBy: user?._id } }
-      );
-      postActivity.like -= 1;
+      )
+      postActivity.like -= 1
     }
-    await postActivity.save();
+    await postActivity.save()
 
-    res.status(201).json(new ApiResponse(200, postActivity.like));
+    res.status(201).json(new ApiResponse(200, postActivity.like))
   } catch (error) {
-    res.status(404).send(error);
+    res.status(404).send(error)
   }
-});
+})
 
 export const getLikesAndComments = asyncHandler(async (req, res) => {
   try {
@@ -40,18 +40,18 @@ export const getLikesAndComments = asyncHandler(async (req, res) => {
         models: { PostActivity },
       },
       body: { postId },
-    } = req;
+    } = req
 
     let postActivity = await PostActivity.findOne({ postId }).populate(
-      "likedBy"
-    );
+      'likedBy'
+    )
 
-    res.status(201).json(new ApiResponse(200, postActivity.likedBy));
+    res.status(201).json(new ApiResponse(200, postActivity.likedBy))
   } catch (error) {
-    console.log(error);
-    res.status(404).send(error);
+    console.log(error)
+    res.status(404).send(error)
   }
-});
+})
 
 export const commentPosts = asyncHandler(async (req, res) => {
   try {
@@ -61,62 +61,33 @@ export const commentPosts = asyncHandler(async (req, res) => {
       },
       body: { newComment, postId },
       user,
-    } = req;
+    } = req
 
-    let postActivity = await PostActivity.findOne({ postId });
+    const postActivity = await PostActivity.findOne({
+      postId,
+      'comment.commentBy': user?._id,
+    })
 
-    const foundComment = postActivity.comment.find(
-      (comment) => comment.commentBy.toString() === user?._id.toString()
-    );
-
-    if (foundComment) {
-      foundComment.comments.push(newComment);
-    } else {
-      const newCommentObj = {
-        commentBy: user?._id,
-        comments: [newComment],
-      };
-      postActivity.comment.push(newCommentObj);
+    let activity
+    if (!postActivity) {
+      activity = await PostActivity.findOneAndUpdate(
+        { postId },
+        {
+          $push: {
+            comment: {
+              commentBy: user?._id,
+              comments: newComment,
+            },
+          },
+        },
+        { new: true }
+      )
     }
-
-    await postActivity.save();
-
-    console.log(postActivity.comment, "*********");
-
-    res.status(201).json(new ApiResponse(200, "Comment added successfully"));
+    await postActivity.comment[0].comments.push(newComment)
+    await postActivity.save()
+    res.status(201).send(activity)
   } catch (error) {
-    res.status(404).send(error);
+    console.log(error)
+    res.status(404).send(error)
   }
-});
-
-
-
-// todo
-// export const commentPosts = asyncHandler(async (req, res) => {
-//   try {
-//     const {
-//       Context: {
-//         models: { PostActivity },
-//       },
-//       body: { newComment, postId },
-//       user,
-//     } = req;
-
-//     const postActivity = await PostActivity.find({postId});
-
-//     const foundComment = await postActivity.comment.find({
-//       comment: {
-//         $elemMatch: {
-//           commentBy: { $eq: user?._id },
-//         },
-//       },
-//     });
-
-    
-//     console.log(foundComment);
-
-//     res.status(201).send(foundComment);
-//   } catch (error) {
-//     res.status(404).send(error);
-//   }
-// });
+})
