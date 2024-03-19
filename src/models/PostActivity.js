@@ -9,20 +9,20 @@ const postActivitySchema = new Schema(
     share: {
       type: Number,
     },
-    comments: {
-      type: [String],
-    },
+    comment: [
+      {
+        commentBy: {
+          type: Schema.Types.ObjectId,
+          ref: "User",
+        },
+        comments: [String],
+      },
+    ],
     postId: {
       type: Schema.Types.ObjectId,
       ref: "Post",
     },
     likedBy: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "User",
-      },
-    ],
-    commentBy: [
       {
         type: Schema.Types.ObjectId,
         ref: "User",

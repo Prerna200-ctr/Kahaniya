@@ -23,14 +23,32 @@ export const likeDislikePosts = asyncHandler(async (req, res) => {
         { _id: postActivity?._id },
         { $pull: { likedBy: user?._id } }
       );
-
       postActivity.like -= 1;
     }
     await postActivity.save();
-    res
-      .status(201)
-      .json(new ApiResponse(200, isLike ? "One like added" : "Dislike"));
+
+    res.status(201).json(new ApiResponse(200, postActivity.like));
   } catch (error) {
+    res.status(404).send(error);
+  }
+});
+
+export const getLikesAndComments = asyncHandler(async (req, res) => {
+  try {
+    const {
+      Context: {
+        models: { PostActivity },
+      },
+      body: { postId },
+    } = req;
+
+    let postActivity = await PostActivity.findOne({ postId }).populate(
+      "likedBy"
+    );
+
+    res.status(201).json(new ApiResponse(200, postActivity.likedBy));
+  } catch (error) {
+    console.log(error);
     res.status(404).send(error);
   }
 });
@@ -41,23 +59,64 @@ export const commentPosts = asyncHandler(async (req, res) => {
       Context: {
         models: { PostActivity },
       },
-      body: { comment, postId },
+      body: { newComment, postId },
       user,
     } = req;
 
-    const newActivity = await PostActivity.findOneAndUpdate(
-      { postId },
-      {
-        $addToSet: { commentBy: user?._id },
-        $push: { comments: comment },
-      },
-      { new: true }
+    let postActivity = await PostActivity.findOne({ postId });
+
+    const foundComment = postActivity.comment.find(
+      (comment) => comment.commentBy.toString() === user?._id.toString()
     );
 
-    console.log(newActivity);
+    if (foundComment) {
+      foundComment.comments.push(newComment);
+    } else {
+      const newCommentObj = {
+        commentBy: user?._id,
+        comments: [newComment],
+      };
+      postActivity.comment.push(newCommentObj);
+    }
+
+    await postActivity.save();
+
+    console.log(postActivity.comment, "*********");
 
     res.status(201).json(new ApiResponse(200, "Comment added successfully"));
   } catch (error) {
     res.status(404).send(error);
   }
 });
+
+
+
+// todo
+// export const commentPosts = asyncHandler(async (req, res) => {
+//   try {
+//     const {
+//       Context: {
+//         models: { PostActivity },
+//       },
+//       body: { newComment, postId },
+//       user,
+//     } = req;
+
+//     const postActivity = await PostActivity.find({postId});
+
+//     const foundComment = await postActivity.comment.find({
+//       comment: {
+//         $elemMatch: {
+//           commentBy: { $eq: user?._id },
+//         },
+//       },
+//     });
+
+    
+//     console.log(foundComment);
+
+//     res.status(201).send(foundComment);
+//   } catch (error) {
+//     res.status(404).send(error);
+//   }
+// });
