@@ -6,9 +6,13 @@ import {
   forgetPasswordSchema,
   resetPasswordSchema,
 } from "./userSchema.js";
-
 import { createPostSchema } from "./postSchema.js";
 import { createCategorySchema } from "./categorySchema.js";
+import {
+  likeDislikePostsSchema,
+  getLikesAndCommentsSchema,
+} from "./postActivitySchema.js";
+
 export const userSchema = {
   registerSchema,
   loginSchema,
@@ -19,9 +23,14 @@ export const userSchema = {
 };
 
 export const postSchema = {
-  createPostSchema
-}
+  createPostSchema,
+};
 
 export const categorySchema = {
-  createCategorySchema
-}
+  createCategorySchema,
+};
+
+export const postActivitySchema = {
+  likeDislikePostsSchema,
+  getLikesAndCommentsSchema,
+};
