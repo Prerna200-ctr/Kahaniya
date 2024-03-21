@@ -11,6 +11,8 @@ import { createCategorySchema } from "./categorySchema.js";
 import {
   likeDislikePostsSchema,
   getLikesAndCommentsSchema,
+  commentPostSchema,
+  deleteCommentSchema,
 } from "./postActivitySchema.js";
 
 export const userSchema = {
@@ -33,4 +35,6 @@ export const categorySchema = {
 export const postActivitySchema = {
   likeDislikePostsSchema,
   getLikesAndCommentsSchema,
+  commentPostSchema,
+  deleteCommentSchema,
 };

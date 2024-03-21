@@ -3,7 +3,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import validateObject from "../utils/validation.js";
 
-// todo : joi validation
+// *done : joi validation
 export const likeDislikePosts = asyncHandler(async (req, res) => {
   try {
     const {
@@ -15,7 +15,7 @@ export const likeDislikePosts = asyncHandler(async (req, res) => {
     } = req;
 
     const validationError = validateObject(
-      body,
+      req.body,
       postActivitySchema?.likeDislikePostsSchema
     );
 
@@ -45,8 +45,7 @@ export const likeDislikePosts = asyncHandler(async (req, res) => {
   }
 });
 
-// todo; joi validation
-// *done : get all comment
+// *done : get all comment, joi validation
 export const getLikesAndComments = asyncHandler(async (req, res) => {
   try {
     const {
@@ -56,9 +55,8 @@ export const getLikesAndComments = asyncHandler(async (req, res) => {
       body: { postId, flag },
     } = req;
 
-    const { body } = req;
     const validationError = validateObject(
-      body,
+      req.body,
       postActivitySchema?.getLikesAndCommentsSchema
     );
     if (validationError) {
@@ -71,7 +69,7 @@ export const getLikesAndComments = asyncHandler(async (req, res) => {
         postId: postId,
       }).populate("comment.commentBy");
       res.status(201).json(new ApiResponse(200, postActivity.comment));
-    } else {
+    } else if(flag == "like"){
       postActivity = await PostActivity.findOne({ postId }).populate("likedBy");
       res.status(201).json(new ApiResponse(200, postActivity.likedBy));
     }
@@ -81,8 +79,7 @@ export const getLikesAndComments = asyncHandler(async (req, res) => {
   }
 });
 
-// todo : joi validation
-// *done : algo + testing
+// *done : algo + testing, joi validation
 export const commentPosts = asyncHandler(async (req, res) => {
   try {
     const {
@@ -92,6 +89,14 @@ export const commentPosts = asyncHandler(async (req, res) => {
       body: { newComment, postId },
       user,
     } = req;
+
+    const validationError = validateObject(
+      req.body,
+      postActivitySchema?.commentPostSchema
+    );
+    if (validationError) {
+      return res.status(400).send({ validationError });
+    }
 
     let postActivity = await PostActivity.findOneAndUpdate(
       {
@@ -125,8 +130,7 @@ export const commentPosts = asyncHandler(async (req, res) => {
   }
 });
 
-//  todo : joi validation
-// *done : algo + testing
+// *done : algo + testing, joi validation
 export const deleteComment = asyncHandler(async (req, res) => {
   try {
     const {
@@ -137,27 +141,30 @@ export const deleteComment = asyncHandler(async (req, res) => {
       user,
     } = req;
 
-    if (comment == "all") {
-      const postActivity = await PostActivity.findOne({
-        "comment.commentBy": user?._id,
-        postId: postId,
-      });
-      postActivity.comment = {
-        $pull: { comment: { "comment.commentBy": user?._id } },
-      };
-      postActivity.save();
-    } else {
-      await PostActivity.findOneAndUpdate(
-        {
-          "comment.commentBy": user?._id,
-          postId: postId,
-        },
-        {
-          $pull: { "comment.$.comments": comment },
-        },
-        { new: true }
-      );
+    const validationError = validateObject(
+      req.body,
+      postActivitySchema?.deleteCommentSchema
+    );
+    if (validationError) {
+      return res.status(400).send({ validationError });
     }
+
+    let where;
+    if (comment.length) {
+      where = {
+        $pull: { "comment.$.comments": { $in: comment } },
+      };
+    } else {
+      where = {
+        $pull: { comment: { commentBy: user?._id } },
+      };
+    }
+
+    let postActivity = await PostActivity.updateOne(
+      { "comment.commentBy": user?._id, postId: postId },
+      where,
+      { multi: true }
+    );
 
     res.status(201).send("Comment deleted successfully");
   } catch (error) {
