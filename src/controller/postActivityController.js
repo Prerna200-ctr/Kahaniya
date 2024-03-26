@@ -3,7 +3,6 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import validateObject from "../utils/validation.js";
 
-// *done : joi validation
 export const likeDislikePosts = asyncHandler(async (req, res) => {
   try {
     const {
@@ -45,7 +44,6 @@ export const likeDislikePosts = asyncHandler(async (req, res) => {
   }
 });
 
-// *done : get all comment, joi validation
 export const getLikesAndComments = asyncHandler(async (req, res) => {
   try {
     const {
@@ -79,7 +77,6 @@ export const getLikesAndComments = asyncHandler(async (req, res) => {
   }
 });
 
-// *done : algo + testing, joi validation
 export const commentPosts = asyncHandler(async (req, res) => {
   try {
     const {
@@ -130,7 +127,6 @@ export const commentPosts = asyncHandler(async (req, res) => {
   }
 });
 
-// *done : algo + testing, joi validation
 export const deleteComment = asyncHandler(async (req, res) => {
   try {
     const {

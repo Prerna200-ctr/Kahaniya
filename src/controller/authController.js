@@ -14,11 +14,6 @@ export const register = asyncHandler(async (req, res) => {
       },
     } = req;
     const { body } = req;
-    const validationError = validateObject(body, userSchema?.registerSchema);
-
-    if (validationError) {
-      return res.status(400).send({ validationError });
-    }
     const existingUser = await User.findOne({ email: body?.email });
     if (existingUser) {
       throw new ApiError(409, "User with email or username already exists");
