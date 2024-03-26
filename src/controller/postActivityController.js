@@ -3,7 +3,6 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import validateObject from "../utils/validation.js";
 
-// *done : joi validation
 export const likeDislikePosts = asyncHandler(async (req, res) => {
   try {
     const {
@@ -45,7 +44,6 @@ export const likeDislikePosts = asyncHandler(async (req, res) => {
   }
 });
 
-// *done : get all comment, joi validation
 export const getLikesAndComments = asyncHandler(async (req, res) => {
   try {
     const {
@@ -69,7 +67,7 @@ export const getLikesAndComments = asyncHandler(async (req, res) => {
         postId: postId,
       }).populate("comment.commentBy");
       res.status(201).json(new ApiResponse(200, postActivity.comment));
-    } else if(flag == "like"){
+    } else if (flag == "like") {
       postActivity = await PostActivity.findOne({ postId }).populate("likedBy");
       res.status(201).json(new ApiResponse(200, postActivity.likedBy));
     }
@@ -79,7 +77,8 @@ export const getLikesAndComments = asyncHandler(async (req, res) => {
   }
 });
 
-// *done : algo + testing, joi validation
+// *done : joi validation
+// todo : algo + testing
 export const commentPosts = asyncHandler(async (req, res) => {
   try {
     const {
@@ -108,6 +107,8 @@ export const commentPosts = asyncHandler(async (req, res) => {
       },
       { new: true }
     );
+
+    console.log(postActivity, "**********postActivity");
 
     if (!postActivity) {
       postActivity = await PostActivity.findOneAndUpdate(
@@ -149,6 +150,11 @@ export const deleteComment = asyncHandler(async (req, res) => {
       return res.status(400).send({ validationError });
     }
 
+    let postActivity = await PostActivity.findById({ postId });
+    if (!postActivity) {
+      throw new ApiError(400, "Post not exist");
+    }
+
     let where;
     if (comment.length) {
       where = {
@@ -160,7 +166,7 @@ export const deleteComment = asyncHandler(async (req, res) => {
       };
     }
 
-    let postActivity = await PostActivity.updateOne(
+    await PostActivity.updateOne(
       { "comment.commentBy": user?._id, postId: postId },
       where,
       { multi: true }
