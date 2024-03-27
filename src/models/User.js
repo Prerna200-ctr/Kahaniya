@@ -36,13 +36,7 @@ const userSchema = new Schema(
       type: String,
       enum: ['reader', 'writer', 'publisher', 'creators', 'brands'],
       default: 'reader',
-    },
-    followers: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: 'User',
-      },
-    ],
+    }
   },
   { timestamps: true }
 )
