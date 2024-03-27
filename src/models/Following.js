@@ -7,6 +7,12 @@ const followingSchema = new Schema(
       ref: 'User',
     },
 
+    status: {
+      type: String,
+      enum: ['approve', 'reject'],
+      default: 'reader',
+    },
+    
     followers: [
       {
         type: Schema.Types.ObjectId,
@@ -26,4 +32,3 @@ const followingSchema = new Schema(
 
 const Following = new model('Following', followingSchema)
 export default Following
-
