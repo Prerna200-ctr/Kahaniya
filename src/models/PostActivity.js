@@ -9,15 +9,14 @@ const postActivitySchema = new Schema(
     share: {
       type: Number,
     },
-    comment: [
+    comments: [
       {
         commentBy: {
           type: Schema.Types.ObjectId,
           ref: "User",
         },
-        comments: {
-          type: [String],
-        },
+        text: String,
+        parentId: Schema.Types.ObjectId, // Identifier of the parent comment or reply
       },
     ],
     postId: {

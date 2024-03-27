@@ -3,6 +3,7 @@ import { authMiddleware } from "../middlewares/authMiddleware.js";
 import {
   commentPosts,
   deleteComment,
+  editComment,
   getLikesAndComments,
   likeDislikePosts,
 } from "../controller/postActivityController.js";
@@ -16,5 +17,6 @@ postActivityRouter.get(
   getLikesAndComments
 );
 postActivityRouter.delete("/delete-comment", authMiddleware, deleteComment);
+postActivityRouter.put("/edit-comment", authMiddleware, editComment);
 
 export default postActivityRouter;

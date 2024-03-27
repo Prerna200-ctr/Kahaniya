@@ -2,7 +2,9 @@ import { postActivitySchema } from "../schema/index.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import validateObject from "../utils/validation.js";
+import { ApiError } from "../utils/ApiError.js";
 
+// todo : joi validation
 export const likeDislikePosts = asyncHandler(async (req, res) => {
   try {
     const {
@@ -44,6 +46,7 @@ export const likeDislikePosts = asyncHandler(async (req, res) => {
   }
 });
 
+// todo : joi validation
 export const getLikesAndComments = asyncHandler(async (req, res) => {
   try {
     const {
@@ -62,12 +65,13 @@ export const getLikesAndComments = asyncHandler(async (req, res) => {
     }
 
     let postActivity;
-    if (flag == "comment") {
+    if (flag === "comment") {
       postActivity = await PostActivity.findOne({
         postId: postId,
-      }).populate("comment.commentBy");
-      res.status(201).json(new ApiResponse(200, postActivity.comment));
-    } else if (flag == "like") {
+      }).populate("comments.commentBy");
+      console.log(postActivity);
+      return res.status(201).json(new ApiResponse(200, postActivity));
+    } else if (flag === "like") {
       postActivity = await PostActivity.findOne({ postId }).populate("likedBy");
       res.status(201).json(new ApiResponse(200, postActivity.likedBy));
     }
@@ -77,15 +81,14 @@ export const getLikesAndComments = asyncHandler(async (req, res) => {
   }
 });
 
-// *done : joi validation
-// todo : algo + testing
+// todo : joi validation
 export const commentPosts = asyncHandler(async (req, res) => {
   try {
     const {
       Context: {
         models: { PostActivity },
       },
-      body: { newComment, postId },
+      body: { newComment, postId, commentId },
       user,
     } = req;
 
@@ -97,49 +100,91 @@ export const commentPosts = asyncHandler(async (req, res) => {
       return res.status(400).send({ validationError });
     }
 
-    let postActivity = await PostActivity.findOneAndUpdate(
-      {
-        "comment.commentBy": user?._id,
-        postId: postId,
-      },
-      {
-        $push: { "comment.$.comments": newComment },
-      },
-      { new: true }
-    );
-
-    console.log(postActivity, "**********postActivity");
-
+    let postActivity = await PostActivity.findOne({ postId });
     if (!postActivity) {
-      postActivity = await PostActivity.findOneAndUpdate(
-        { postId },
-        {
-          $push: {
-            comment: {
-              commentBy: user?._id,
-              comments: newComment,
-            },
-          },
-        },
-        { new: true }
-      );
+      throw new ApiError(400, "Post not exist");
     }
-    res.status(201).send(postActivity);
+
+    // adding a new comment (consider, parent comment)
+    let where,
+      response = "";
+    if (!commentId) {
+      where = {
+        commentBy: user?._id,
+        text: newComment,
+        parentId: null,
+      };
+      response = "Comment added successfully";
+    } else {
+      // adding a new comment (consider, reply on a comment)
+      where = {
+        commentBy: user?._id,
+        text: newComment,
+        parentId: commentId,
+      };
+      response = "Replied to post";
+    }
+    postActivity.comments.push(where);
+    await postActivity.save();
+
+    res.status(201).send(response);
   } catch (error) {
     console.log(error);
     res.status(404).send(error);
   }
 });
 
-// *done : algo + testing, joi validation
+export const editComment = asyncHandler(async (req, res) => {
+  try {
+    const {
+      Context: {
+        models: { PostActivity },
+      },
+      body: { commentId, postId, newComment },
+    } = req;
+
+    const validationError = validateObject(
+      req.body,
+      postActivitySchema?.updateCommentSchema
+    );
+    if (validationError) {
+      return res.status(400).send({ validationError });
+    }
+
+    let postActivity = await PostActivity.findOneAndUpdate(
+      {
+        postId: postId,
+        "comments._id": commentId,
+      },
+      {
+        $set: {
+          "comments.$.text": newComment,
+        },
+      },
+      {
+        new: true,
+      }
+    );
+
+    if (!postActivity) {
+      throw new ApiError(400, "Post not exist");
+    }
+
+    res.status(201).send("Comment edited successfully");
+  } catch (error) {
+    console.log(error);
+    res.status(404).send(error);
+  }
+});
+
+// *todo : joi validation
 export const deleteComment = asyncHandler(async (req, res) => {
   try {
     const {
       Context: {
         models: { PostActivity },
       },
-      body: { comment, postId },
-      user,
+      body: { commentId, postId },
     } = req;
 
     const validationError = validateObject(
@@ -150,27 +195,67 @@ export const deleteComment = asyncHandler(async (req, res) => {
       return res.status(400).send({ validationError });
     }
 
-    let postActivity = await PostActivity.findById({ postId });
-    if (!postActivity) {
-      throw new ApiError(400, "Post not exist");
-    }
+    const postActivity = await PostActivity.findOne({ postId });
+    console.log(postActivity, "postActivity");
 
-    let where;
-    if (comment.length) {
-      where = {
-        $pull: { "comment.$.comments": { $in: comment } },
-      };
-    } else {
-      where = {
-        $pull: { comment: { commentBy: user?._id } },
-      };
-    }
+    const result = await PostActivity.aggregate([
+      {
+        $match: { postId: postId },
+      },
+      {
+        $graphLookup: {
+          from: "PostActivity",
+          startWith: "$comments._id",
+          connectFromField: "comments._id",
+          connectToField: "comments.parentId",
+          as: "commentHierarchy",
+        },
+      },
+      {
+        $match: {
+          $or: [
+            { "comments._id": commentId },
+            { "commentHierarchy._id": commentId },
+          ],
+        },
+      },
+    ]);
 
-    await PostActivity.updateOne(
-      { "comment.commentBy": user?._id, postId: postId },
-      where,
-      { multi: true }
-    );
+    console.log(result);
+
+    // const result = await PostActivity.aggregate([
+    //   {
+    //     $match: { postId: postId },
+    //   },
+    //   {
+    //     $graphLookup: {
+    //       from: "PostActivity",
+    //       startWith: "$comments._id",
+    //       connectFromField: "comments._id",
+    //       connectToField: "comments.parentId",
+    //       as: "commentHierarchy",
+    //     },
+    //   },
+    //   {
+    //     $match: {
+    //       $or: [
+    //         { "comments._id": commentId },
+    //         { "commentHierarchy._id": commentId },
+    //       ],
+    //     },
+    //   },
+    // ]);
+
+    // console.log(result, "*******************************");
+
+    // let postActivity = await PostActivity.findOneAndUpdate(
+    //   { postId },
+    //   { $pull: { comments: { _id: commentId } } }
+    // );
+
+    // if (!postActivity) {
+    //   throw new ApiError(400, "Post not exist");
+    // }
 
     res.status(201).send("Comment deleted successfully");
   } catch (error) {

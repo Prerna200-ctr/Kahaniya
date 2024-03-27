@@ -13,6 +13,7 @@ import {
   getLikesAndCommentsSchema,
   commentPostSchema,
   deleteCommentSchema,
+  updateCommentSchema,
 } from "./postActivitySchema.js";
 
 export const userSchema = {
@@ -37,4 +38,5 @@ export const postActivitySchema = {
   getLikesAndCommentsSchema,
   commentPostSchema,
   deleteCommentSchema,
+  updateCommentSchema,
 };

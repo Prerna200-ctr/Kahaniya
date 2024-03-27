@@ -41,6 +41,15 @@ export const commentPostSchema = Joi.object({
     }, "MongoDB ObjectID"),
 
   newComment: Joi.string().required(),
+
+  commentId: Joi.string()
+    .regex(/^[0-9a-fA-F]{24}$/)
+    .custom((value, helpers) => {
+      if (!ObjectId.isValid(value)) {
+        return helpers.error("any.invalid");
+      }
+      return value;
+    }, "MongoDB ObjectID"),
 });
 
 export const deleteCommentSchema = Joi.object({
@@ -54,5 +63,37 @@ export const deleteCommentSchema = Joi.object({
       return value;
     }, "MongoDB ObjectID"),
 
-  comment: Joi.array().items(Joi.string()).required(),
+  commentId: Joi.string()
+    .regex(/^[0-9a-fA-F]{24}$/)
+    .required()
+    .custom((value, helpers) => {
+      if (!ObjectId.isValid(value)) {
+        return helpers.error("any.invalid");
+      }
+      return value;
+    }, "MongoDB ObjectID"),
+});
+
+export const updateCommentSchema = Joi.object({
+  postId: Joi.string()
+    .regex(/^[0-9a-fA-F]{24}$/)
+    .required()
+    .custom((value, helpers) => {
+      if (!ObjectId.isValid(value)) {
+        return helpers.error("any.invalid");
+      }
+      return value;
+    }, "MongoDB ObjectID"),
+
+  commentId: Joi.string()
+    .regex(/^[0-9a-fA-F]{24}$/)
+    .required()
+    .custom((value, helpers) => {
+      if (!ObjectId.isValid(value)) {
+        return helpers.error("any.invalid");
+      }
+      return value;
+    }, "MongoDB ObjectID"),
+
+  newComment: Joi.string().required(),
 });
