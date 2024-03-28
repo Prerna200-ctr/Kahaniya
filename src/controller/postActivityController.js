@@ -131,7 +131,6 @@ export const commentPosts = asyncHandler(async (req, res) => {
   }
 });
 
-// *done : algo + testing, joi validation
 export const deleteComment = asyncHandler(async (req, res) => {
   try {
     const {
