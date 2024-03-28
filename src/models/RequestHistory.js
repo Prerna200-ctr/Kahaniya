@@ -8,7 +8,8 @@ const requestHistorySchema = new Schema(
 
     requestStatus: {
       type: String,
-      enum: ['approve', 'rejected', 'requested'],
+      enum: ['accepted', 'requested'],
+      default: null,
     },
 
     requestedUser: {
@@ -17,8 +18,8 @@ const requestHistorySchema = new Schema(
     },
 
     responseByUser: {
-      type: Schema.Types.ObjectId,
-      ref: 'User',
+      type: Boolean,
+      default: false,
     },
   },
   { timestamps: true }

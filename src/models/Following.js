@@ -7,12 +7,6 @@ const followingSchema = new Schema(
       ref: 'User',
     },
 
-    status: {
-      type: String,
-      enum: ['approve', 'reject'],
-      default: 'reader',
-    },
-    
     followers: [
       {
         type: Schema.Types.ObjectId,
