@@ -1,4 +1,4 @@
-import { asyncHandler } from '../utils/asyncHandler.js'
+import { asyncHandler } from "../utils/asyncHandler.js";
 
 export const followRequest = asyncHandler(async (req, res) => {
   try {
@@ -8,9 +8,9 @@ export const followRequest = asyncHandler(async (req, res) => {
       },
       body,
       user,
-    } = req
+    } = req;
 
-    const { requestedUserId, status } = body
+    const { requestedUserId, status } = body;
 
     const sendFollowRequest = await RequestHistory.findOneAndUpdate(
       {
@@ -20,16 +20,16 @@ export const followRequest = asyncHandler(async (req, res) => {
         requestStatus: status,
         requestedUser: requestedUserId,
       }
-    )
+    );
 
     if (!sendFollowRequest) {
-      throw new ApiError(500, 'Something went wrong')
+      throw new ApiError(500, "Something went wrong");
     }
-    res.status(201).json(new ApiResponse(200, 'Requested'))
+    res.status(201).json(new ApiResponse(200, "Requested"));
   } catch (error) {
-    res.status(404).send(error)
+    res.status(404).send(error);
   }
-})
+});
 
 export const acceptFollowRequest = asyncHandler(async (req, res) => {
   try {
@@ -39,9 +39,9 @@ export const acceptFollowRequest = asyncHandler(async (req, res) => {
       },
       user,
       body,
-    } = req
+    } = req;
 
-    const { status } = body
+    const { status } = body;
 
     const acceptRequest = await RequestHistory.findOneAndUpdate(
       {
@@ -51,10 +51,10 @@ export const acceptFollowRequest = asyncHandler(async (req, res) => {
         responseByUser: true,
         requestStatus: status,
       }
-    )
+    );
 
     if (!acceptRequest) {
-      throw new ApiError(500, 'Something went wrong')
+      throw new ApiError(500, "Something went wrong");
     }
 
     await Following.findOneAndUpdate(
@@ -62,12 +62,12 @@ export const acceptFollowRequest = asyncHandler(async (req, res) => {
       {
         $addToSet: { followers: user?._id },
       }
-    )
-    res.status(201).json(new ApiResponse(200, 'Accepted'))
+    );
+    res.status(201).json(new ApiResponse(200, "Accepted"));
   } catch (error) {
-    res.status(404).send(error)
+    res.status(404).send(error);
   }
-})
+});
 
 export const rejectRequests = asyncHandler(async (req, res) => {
   try {
@@ -76,7 +76,7 @@ export const rejectRequests = asyncHandler(async (req, res) => {
         models: { RequestHistory, Following },
       },
       user,
-    } = req
+    } = req;
 
     const rejectRequest = await RequestHistory.findOneAndUpdate(
       {
@@ -87,16 +87,16 @@ export const rejectRequests = asyncHandler(async (req, res) => {
         responseByUser: null,
         requestedUser: null,
       }
-    )
+    );
 
     if (!rejectRequest) {
-      throw new ApiError(500, 'Something went wrong')
+      throw new ApiError(500, "Something went wrong");
     }
-    res.status(201).json(new ApiResponse(200, 'Rejected'))
+    res.status(201).json(new ApiResponse(200, "Rejected"));
   } catch (error) {
-    res.status(404).send(error)
+    res.status(404).send(error);
   }
-})
+});
 
 export const getFollowRequests = asyncHandler(async (req, res) => {
   try {
@@ -105,44 +105,83 @@ export const getFollowRequests = asyncHandler(async (req, res) => {
         models: { RequestHistory, Following },
       },
       user,
-    } = req
+    } = req;
 
     const requests = await RequestHistory.find({
       requestedUser: user?._id,
-      requestStatus: 'requested',
-    })
+      requestStatus: "requested",
+    });
     if (!requests || requests.length === 0) {
-      res.status(404).json(new ApiResponse(200, 'No requested'))
+      res.status(404).json(new ApiResponse(200, "No requested"));
     }
-    res.status(201).json(new ApiResponse(200, requests))
+    res.status(201).json(new ApiResponse(200, requests));
   } catch (error) {
-    res.status(404).send(error)
+    res.status(404).send(error);
   }
-})
+});
 
 export const removeFollower = asyncHandler(async (req, res) => {
   try {
     const {
       Context: {
-        models: { RequestHistory, Following },
+        models: { Following },
       },
       user,
-    } = req
+      body: { followerId },
+    } = req;
+
+    const removedFollower = await Following.findOneAndUpdate(
+      {
+        userId: user?._id,
+      },
+      {
+        $pull: { followers: followerId },
+      }
+    );
+
+    if (!removedFollower) {
+      throw new ApiError(500, "Something went wrong");
+    }
+
+    await Following.findOneAndUpdate(
+      {
+        userId: followerId,
+      },
+      {
+        $pull: { following: user?._id },
+      }
+    );
+
+    res.status(201).json(new ApiResponse(200, "Removed follower"));
   } catch (error) {
-    res.status(404).send(error)
+    res.status(404).send(error);
   }
-})
+});
 
 export const unfollowRequest = asyncHandler(async (req, res) => {
   try {
     const {
       Context: {
-        models: { RequestHistory, Following },
+        models: { Following },
       },
+      body: { followerId },
       user,
-    } = req
-    
+    } = req;
+
+    const unFollow = await Following.findOneAndUpdate(
+      {
+        userId: user?._id,
+      },
+      {
+        $pull: { following: followerId },
+      }
+    );
+
+    if (!unFollow) {
+      throw new ApiError(500, "Something went wrong");
+    }
+    res.status(201).json(new ApiResponse(200, "Unfollowed"));
   } catch (error) {
-    res.status(404).send(error)
+    res.status(404).send(error);
   }
-})
+});
