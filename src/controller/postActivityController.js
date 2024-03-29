@@ -13,15 +13,6 @@ export const likeDislikePosts = asyncHandler(async (req, res) => {
       user,
     } = req;
 
-    const validationError = validateObject(
-      req.body,
-      postActivitySchema?.likeDislikePostsSchema
-    );
-
-    if (validationError) {
-      return res.status(400).send({ validationError });
-    }
-
     let postActivity = await PostActivity.findOne({ postId });
 
     if (isLike) {
@@ -53,14 +44,6 @@ export const getLikesAndComments = asyncHandler(async (req, res) => {
       body: { postId, flag },
     } = req;
 
-    const validationError = validateObject(
-      req.body,
-      postActivitySchema?.getLikesAndCommentsSchema
-    );
-    if (validationError) {
-      return res.status(400).send({ validationError });
-    }
-
     let postActivity;
     if (flag == "comment") {
       postActivity = await PostActivity.findOne({
@@ -89,14 +72,6 @@ export const commentPosts = asyncHandler(async (req, res) => {
       user,
     } = req;
 
-    const validationError = validateObject(
-      req.body,
-      postActivitySchema?.commentPostSchema
-    );
-    if (validationError) {
-      return res.status(400).send({ validationError });
-    }
-
     let postActivity = await PostActivity.findOneAndUpdate(
       {
         "comment.commentBy": user?._id,
@@ -107,8 +82,6 @@ export const commentPosts = asyncHandler(async (req, res) => {
       },
       { new: true }
     );
-
-    console.log(postActivity, "**********postActivity");
 
     if (!postActivity) {
       postActivity = await PostActivity.findOneAndUpdate(
@@ -140,14 +113,6 @@ export const deleteComment = asyncHandler(async (req, res) => {
       body: { comment, postId },
       user,
     } = req;
-
-    const validationError = validateObject(
-      req.body,
-      postActivitySchema?.deleteCommentSchema
-    );
-    if (validationError) {
-      return res.status(400).send({ validationError });
-    }
 
     let postActivity = await PostActivity.findById({ postId });
     if (!postActivity) {

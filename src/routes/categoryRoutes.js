@@ -1,11 +1,37 @@
-import express from "express";
+import express from 'express'
 import {
   createCategory,
+  deleteCategory,
   followUnfollowCategory,
-} from "../controller/categoryController.js";
-import { authMiddleware } from "../middlewares/authMiddleware.js";
-const categoryRouter = express.Router();
+  updateCategory,
+} from '../controller/categoryController.js'
+import { authMiddleware } from '../middlewares/authMiddleware.js'
+import {
+  createCategoryValidation,
+  deleteCategoryValidation,
+  followUnfollowCategoryValidation,
+  updateCategoryValidation,
+} from '../validation/categoryValidation.js'
 
-categoryRouter.post("/follow-unfollow-category", authMiddleware, followUnfollowCategory);
-categoryRouter.post("/create", createCategory);
-export default categoryRouter;
+const categoryRouter = express.Router()
+
+categoryRouter.post('/create', createCategoryValidation, createCategory)
+categoryRouter.delete(
+  '/delete-category/:id',
+  authMiddleware,
+  deleteCategoryValidation,
+  deleteCategory
+)
+categoryRouter.post(
+  '/follow-unfollow-category',
+  authMiddleware,
+  followUnfollowCategoryValidation,
+  followUnfollowCategory
+)
+categoryRouter.post(
+  '/update-categoty/:id',
+  authMiddleware,
+  updateCategoryValidation,
+  updateCategory
+)
+export default categoryRouter
