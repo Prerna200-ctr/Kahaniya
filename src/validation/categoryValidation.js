@@ -7,7 +7,7 @@ export const createCategoryValidation = (req, res, next) => {
     categorySchema?.createCategorySchema
   )
   if (validationError) {
-    return new Error(validationError)
+    return res.status(404).send(validationError)
   }
   next()
 }
@@ -18,7 +18,7 @@ export const deleteCategoryValidation = (req, res, next) => {
     categorySchema?.deleteCategorySchema
   )
   if (validationError) {
-    return new Error(validationError)
+    return res.status(404).send(validationError)
   }
   next()
 }
@@ -28,13 +28,15 @@ export const updateCategoryValidation = (req, res, next) => {
     req.params,
     categorySchema?.updateCategoryParamsSchema
   )
-
+  
   const validationError2 = validateResponse(
     req.body,
     categorySchema?.updateCategoryBodySchema
-  )
-  if (!validationError1 || !validationError2) {
-    return new Error({ validationError1, validationError2 })
+    )
+
+    console.log(validationError1, validationError2);
+  if (validationError1 || validationError2) {
+    return res.status(404).send({ validationError1, validationError2 })
   }
   next()
 }
@@ -45,7 +47,7 @@ export const followUnfollowCategoryValidation = (req, res, next) => {
     categorySchema?.followUnfollowCategorySchema
   )
   if (validationError) {
-    return new Error(validationError)
+    return res.status(404).send(validationError)
   }
   next()
 }

@@ -1,7 +1,5 @@
-import { postActivitySchema } from '../schema/index.js'
 import { ApiResponse } from '../utils/ApiResponse.js'
 import { asyncHandler } from '../utils/asyncHandler.js'
-import validateObject from '../utils/validation.js'
 import { ApiError } from '../utils/ApiError.js'
 
 // todo : joi validation
@@ -236,5 +234,6 @@ export const deleteComment = asyncHandler(async (req, res) => {
     res.status(404).send(error)
   }
 })
+
 
 

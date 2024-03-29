@@ -7,7 +7,7 @@ export const createPostValidation = (req, res, next) => {
     postSchema?.createPostSchema
   )
   if (validationError) {
-    return new Error(validationError)
+    return res.status(404).send(validationError)
   }
   next()
 }
@@ -18,7 +18,7 @@ export const deletePostValidation = (req, res, next) => {
     postSchema?.deletePostSchema
   )
   if (validationError) {
-    return new Error(validationError)
+    return res.status(404).send(validationError)
   }
   next()
 }
@@ -29,9 +29,7 @@ export const getFeedsValidation = (req, res, next) => {
     postSchema?.getFeedsSchema
   )
   if (validationError) {
-    return new Error(validationError)
+    return res.status(404).send(validationError)
   }
   next()
 }
-
-

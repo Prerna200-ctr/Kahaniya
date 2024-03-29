@@ -7,7 +7,7 @@ export const likeDislikePostsValidation = (req, res, next) => {
     postActivitySchema?.likeDislikePostsSchema
   )
   if (validationError) {
-    return new Error(validationError)
+    return res.status(404).send(validationError)
   }
   next()
 }
@@ -18,7 +18,7 @@ export const getLikesAndCommentsValidation = (req, res, next) => {
     postActivitySchema?.getLikesAndCommentsSchema
   )
   if (validationError) {
-    return new Error(validationError)
+    return res.status(404).send(validationError)
   }
   next()
 }
@@ -29,7 +29,7 @@ export const commentPostsValidation = (req, res, next) => {
     postActivitySchema?.commentPostSchema
   )
   if (validationError) {
-    return new Error(validationError)
+    return res.status(404).send(validationError)
   }
   next()
 }
@@ -40,7 +40,7 @@ export const deleteCommentValidation = (req, res, next) => {
     postActivitySchema?.deleteCommentSchema
   )
   if (validationError) {
-    return new Error(validationError)
+    return res.status(404).send(validationError)
   }
   next()
 }
@@ -51,7 +51,7 @@ export const editCommentValidation = (req, res, next) => {
     postActivitySchema?.updateCommentSchema
   )
   if (validationError) {
-    return new Error(validationError)
+    return res.status(404).send(validationError)
   }
   next()
 }
