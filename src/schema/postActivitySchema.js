@@ -26,7 +26,7 @@ export const getLikesAndCommentsSchema = Joi.object({
       return value;
     }, "MongoDB ObjectID"),
 
-  flag: Joi.string().required(),
+  flag: Joi.string().valid("comment","like").required(),
 });
 
 export const commentPostSchema = Joi.object({

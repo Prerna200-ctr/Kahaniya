@@ -1,4 +1,4 @@
-import Joi from "joi";
+import Joi from 'joi'
 
 export const registerSchema = Joi.object({
   name: Joi.string().trim().min(3).max(50).required(),
@@ -11,7 +11,7 @@ export const registerSchema = Joi.object({
     )
     .required(),
   email: Joi.string().email().trim().lowercase().required(),
-});
+})
 
 export const loginSchema = Joi.object({
   email: Joi.string().email().required(),
@@ -23,11 +23,11 @@ export const loginSchema = Joi.object({
     )
     .required()
     .messages({
-      "string.pattern.base": `Password should be between 3 to 10 characters and must conatain at least one letter (lowercase and uppercase both) and one digit and one special chacacter`,
-      "string.empty": `Password cannot be empty`,
-      "any.required": `Password is required`,
+      'string.pattern.base': `Password should be between 3 to 10 characters and must conatain at least one letter (lowercase and uppercase both) and one digit and one special chacacter`,
+      'string.empty': `Password cannot be empty`,
+      'any.required': `Password is required`,
     }),
-});
+})
 
 export const updateSchema = Joi.object({
   name: Joi.string(),
@@ -39,11 +39,11 @@ export const updateSchema = Joi.object({
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
     )
     .messages({
-      "string.pattern.base": `Password should be between 3 to 10 characters and must conatain at least one letter (lowercase and uppercase both) and one digit and one special chacacter`,
-      "string.empty": `Password cannot be empty`,
-      "any.required": `Password is required`,
+      'string.pattern.base': `Password should be between 3 to 10 characters and must conatain at least one letter (lowercase and uppercase both) and one digit and one special chacacter`,
+      'string.empty': `Password cannot be empty`,
+      'any.required': `Password is required`,
     }),
-});
+})
 
 export const changePasswordSchema = Joi.object({
   oldPassword: Joi.string()
@@ -53,9 +53,9 @@ export const changePasswordSchema = Joi.object({
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
     )
     .messages({
-      "string.pattern.base": `Password should be between 3 to 10 characters and must conatain at least one letter (lowercase and uppercase both) and one digit and one special chacacter`,
-      "string.empty": `Password cannot be empty`,
-      "any.required": `Password is required`,
+      'string.pattern.base': `Password should be between 3 to 10 characters and must conatain at least one letter (lowercase and uppercase both) and one digit and one special chacacter`,
+      'string.empty': `Password cannot be empty`,
+      'any.required': `Password is required`,
     }),
   newPassword: Joi.string()
     .min(8)
@@ -64,15 +64,15 @@ export const changePasswordSchema = Joi.object({
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
     )
     .messages({
-      "string.pattern.base": `Password should be between 3 to 10 characters and must conatain at least one letter (lowercase and uppercase both) and one digit and one special chacacter`,
-      "string.empty": `Password cannot be empty`,
-      "any.required": `Password is required`,
+      'string.pattern.base': `Password should be between 3 to 10 characters and must conatain at least one letter (lowercase and uppercase both) and one digit and one special chacacter`,
+      'string.empty': `Password cannot be empty`,
+      'any.required': `Password is required`,
     }),
-});
+})
 
 export const forgetPasswordSchema = Joi.object({
   email: Joi.string().email().required(),
-});
+})
 
 export const resetPasswordSchema = Joi.object({
   newPassword: Joi.string()
@@ -83,10 +83,9 @@ export const resetPasswordSchema = Joi.object({
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
     )
     .messages({
-      "string.pattern.base": `Password should be between 3 to 10 characters and must conatain at least one letter (lowercase and uppercase both) and one digit and one special chacacter`,
-      "string.empty": `Password cannot be empty`,
-      "any.required": `Password is required`,
+      'string.pattern.base': `Password should be between 3 to 10 characters and must conatain at least one letter (lowercase and uppercase both) and one digit and one special chacacter`,
+      'string.empty': `Password cannot be empty`,
+      'any.required': `Password is required`,
     }),
   resetToken: Joi.number().required().min(6),
-  
-});
+})

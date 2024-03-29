@@ -23,6 +23,10 @@ const postActivitySchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "Post",
     },
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+    },
     likedBy: [
       {
         type: Schema.Types.ObjectId,

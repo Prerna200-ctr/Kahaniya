@@ -1,7 +1,5 @@
-import { postSchema } from '../schema/index.js'
 import { ApiResponse } from '../utils/ApiResponse.js'
 import { asyncHandler } from '../utils/asyncHandler.js'
-import validateObject from '../utils/validation.js'
 import { ApiError } from '../utils/ApiError.js'
 
 export const createPost = asyncHandler(async (req, res) => {
@@ -9,14 +7,10 @@ export const createPost = asyncHandler(async (req, res) => {
     const {
       Context: {
         models: { Post, Category, PostActivity },
-        user,
       },
+      user,
     } = req
     const { body } = req
-    const validationError = validateObject(body, postSchema?.createPostSchema)
-    if (validationError) {
-      return res.status(400).send({ validationError })
-    }
 
     const existingCategory = await Category.findOne({
       categories: body?.category,
@@ -36,7 +30,7 @@ export const createPost = asyncHandler(async (req, res) => {
       throw new ApiError(400, 'Something went wrong')
     }
 
-    await PostActivity.create({ postId: post?._id })
+    await PostActivity.create({ postId: post?._id, userId: user?._id })
 
     res.status(201).json(new ApiResponse(200, post, 'Post created'))
   } catch (error) {
@@ -52,10 +46,14 @@ export const deletePost = asyncHandler(async (req, res) => {
         models: { Post },
       },
       params,
+      user,
     } = req
 
     const { id } = params
-    const checkDelete = await Post.findByIdAndDelete(id)
+    const checkDelete = await Post.findOneAndDelete({
+      _id: id,
+      userId: user?._id,
+    })
     if (!checkDelete) {
       throw new ApiError(400, 'Something went wrong')
     }
@@ -84,7 +82,7 @@ export const getFeeds = asyncHandler(async (req, res) => {
       where = { category: null }
     }
     const posts = await Post.find(where).select('-category')
-    
+
     if (!posts || posts.length === 0) {
       throw new ApiError(400, 'Nothing to show')
     }
