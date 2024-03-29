@@ -73,7 +73,7 @@ export const rejectRequests = asyncHandler(async (req, res) => {
   try {
     const {
       Context: {
-        models: { RequestHistory, Following },
+        models: { RequestHistory },
       },
       user,
     } = req;
