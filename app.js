@@ -27,5 +27,7 @@ app.use("/", routes.userRouter);
 app.use("/post", routes.postRouter);
 app.use("/category", routes.categoryRouter);
 app.use("/postActivity", routes.postActivityRouter);
+app.use("/requestHistory", routes.requestHistoryRouter);
+app.use("/following", routes.followingRouter);
 
 export { app };

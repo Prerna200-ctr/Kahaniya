@@ -8,7 +8,7 @@ export const register = asyncHandler(async (req, res) => {
   try {
     const {
       Context: {
-        models: { User, RequestHistory, Following },
+        models: { User, Following },
       },
     } = req;
 
@@ -26,7 +26,6 @@ export const register = asyncHandler(async (req, res) => {
     if (!createdUser) {
       throw new ApiError(500, 'Something went wrong while registering the user')
     }
-    await RequestHistory.create({ userId: createdUser?._id })
     await Following.create({ userId: createdUser?._id })
     res.status(201).json(new ApiResponse(200, createdUser, 'User registered Successfully'))
   } catch (error) {

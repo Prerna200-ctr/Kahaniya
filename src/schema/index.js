@@ -6,7 +6,11 @@ import {
   forgetPasswordSchema,
   resetPasswordSchema,
 } from './userSchema.js'
-import { createPostSchema, deletePostSchema, getFeedsSchema } from './postSchema.js'
+import {
+  createPostSchema,
+  deletePostSchema,
+  getFeedsSchema,
+} from './postSchema.js'
 import {
   createCategorySchema,
   deleteCategorySchema,
@@ -19,8 +23,15 @@ import {
   getLikesAndCommentsSchema,
   commentPostSchema,
   deleteCommentSchema,
-  updateCommentSchema
+  updateCommentSchema,
 } from './postActivitySchema.js'
+import {
+  followRequestSchema,
+  acceptFollowRequestSchema,
+  removeFollowerSchema,
+  unfollowRequestSchema,
+  rejectFollowRequestSchema
+} from '../schema/requestHistorySchema.js'
 
 export const userSchema = {
   registerSchema,
@@ -34,7 +45,7 @@ export const userSchema = {
 export const postSchema = {
   createPostSchema,
   deletePostSchema,
-  getFeedsSchema
+  getFeedsSchema,
 }
 
 export const categorySchema = {
@@ -42,7 +53,7 @@ export const categorySchema = {
   deleteCategorySchema,
   updateCategoryParamsSchema,
   followUnfollowCategorySchema,
-  updateCategoryBodySchema
+  updateCategoryBodySchema,
 }
 
 export const postActivitySchema = {
@@ -51,5 +62,12 @@ export const postActivitySchema = {
   commentPostSchema,
   deleteCommentSchema,
   updateCommentSchema,
-};
+}
 
+export const requestHistorySchema = {
+  followRequestSchema,
+  acceptFollowRequestSchema,
+  removeFollowerSchema,
+  unfollowRequestSchema,
+  rejectFollowRequestSchema
+}

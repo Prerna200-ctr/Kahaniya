@@ -20,7 +20,6 @@ import {
 } from '../validation/userValidation.js'
 
 //router object
-
 const userRouter = express.Router()
 
 userRouter.post('/register', registerValidation, register)

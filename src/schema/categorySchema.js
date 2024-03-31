@@ -29,5 +29,13 @@ export const followUnfollowCategorySchema = Joi.object({
 })
 
 export const updateCategoryBodySchema = Joi.object({
-  categories: Joi.string(),
+  categories: Joi.string().valid(
+    'Crime',
+    'Love',
+    'Mystery',
+    'Thrill',
+    'Horror',
+    'Personal development',
+    'Adult'
+  ),
 })

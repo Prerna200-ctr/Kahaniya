@@ -6,6 +6,7 @@ export const createCategoryValidation = (req, res, next) => {
     req.body,
     categorySchema?.createCategorySchema
   )
+
   if (validationError) {
     return res.status(404).send(validationError)
   }
@@ -17,6 +18,9 @@ export const deleteCategoryValidation = (req, res, next) => {
     req.params,
     categorySchema?.deleteCategorySchema
   )
+
+  console.log(validationError)
+
   if (validationError) {
     return res.status(404).send(validationError)
   }
@@ -28,14 +32,13 @@ export const updateCategoryValidation = (req, res, next) => {
     req.params,
     categorySchema?.updateCategoryParamsSchema
   )
-  
+
   const validationError2 = validateResponse(
     req.body,
     categorySchema?.updateCategoryBodySchema
-    )
+  )
 
-    console.log(validationError1, validationError2);
-  if (validationError1 || validationError2) {
+  if (validationError1!==null || validationError2!==null) {
     return res.status(404).send({ validationError1, validationError2 })
   }
   next()
