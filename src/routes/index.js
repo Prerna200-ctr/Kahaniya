@@ -4,7 +4,7 @@ import categoryRouter from './categoryRoutes.js'
 import postActivityRouter from './postActivityRoutes.js'
 import followingRouter from './followingRoutes.js'
 import requestHistoryRouter from './requestHistoryRoutes.js'
-
+import blockRouter from './blockRoutes.js'
 export const routes = {
   userRouter,
   postRouter,
@@ -12,4 +12,5 @@ export const routes = {
   postActivityRouter,
   followingRouter,
   requestHistoryRouter,
+  blockRouter,
 }
