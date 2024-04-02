@@ -24,6 +24,6 @@ postRouter.delete(
   deletePostValidation,
   deletePost
 )
-postRouter.get('/:category', getFeedsValidation, getFeeds)
+postRouter.get('/:category', authMiddleware, getFeedsValidation, getFeeds)
 
 export default postRouter

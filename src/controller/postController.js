@@ -67,12 +67,15 @@ export const getFeeds = asyncHandler(async (req, res) => {
   try {
     const {
       Context: {
-        models: { Post, Category },
+        models: { Post, Category, Block },
       },
       params,
+      user,
     } = req
     const { category } = params
+
     const existingCategory = await Category.findOne({ categories: category })
+
     let where
     if (existingCategory) {
       where = { category: existingCategory?._id }
@@ -81,7 +84,15 @@ export const getFeeds = asyncHandler(async (req, res) => {
     } else {
       where = { category: null }
     }
-    const posts = await Post.find(where).select('-category')
+
+    let block = await Block.findOne({ userId: user?._id })
+    if (block) {
+      block = block.blockedUser
+    }
+
+    const posts = await Post.find({ ...where, userId: { $nin: block } }).select(
+      '-category'
+    )
 
     if (!posts || posts.length === 0) {
       throw new ApiError(400, 'Nothing to show')

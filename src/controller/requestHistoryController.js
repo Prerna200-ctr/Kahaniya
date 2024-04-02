@@ -1,6 +1,7 @@
 import { asyncHandler } from '../utils/asyncHandler.js'
 import { ApiResponse } from '../utils/ApiResponse.js'
 import { ApiError } from '../utils/ApiError.js'
+import Block from '../models/Block.js'
 
 export const followRequest = asyncHandler(async (req, res) => {
   try {
@@ -14,6 +15,14 @@ export const followRequest = asyncHandler(async (req, res) => {
 
     const { requestedUserId, status } = body
 
+    let block = await Block.findOne({
+      userId: { $in: [requestedUserId, user?._id] },
+      blockedUser: { $in: [requestedUserId, user?._id] },
+    })
+
+    if (block) {
+      return res.status(500).json(new ApiResponse(200, 'Something went wrong'))
+    }
     let sendFollowRequest = await RequestHistory.findOne({
       userId: user?._id,
       requestedUser: requestedUserId,
