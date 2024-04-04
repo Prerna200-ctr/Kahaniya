@@ -1,6 +1,7 @@
 import mongoose, { Schema, model } from 'mongoose'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
+import { models } from '../models/index.js'
 
 const userSchema = new Schema(
   {
@@ -36,7 +37,7 @@ const userSchema = new Schema(
       type: String,
       enum: ['reader', 'writer', 'publisher', 'creators', 'brands'],
       default: 'reader',
-    }
+    },
   },
   { timestamps: true }
 )
@@ -44,6 +45,7 @@ const userSchema = new Schema(
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next()
   this.password = await bcrypt.hash(this.password, 10)
+  await models.Following.create({ userId: this._id })
   next()
 })
 

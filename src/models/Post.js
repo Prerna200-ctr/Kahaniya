@@ -1,4 +1,5 @@
-import { Schema, model } from "mongoose";
+import { Schema, model } from 'mongoose'
+import {models}  from '../models/index.js'
 
 const postSchema = new Schema(
   {
@@ -13,11 +14,11 @@ const postSchema = new Schema(
     },
     userId: {
       type: Schema.Types.ObjectId,
-      ref: "User",
+      ref: 'User',
     },
     category: {
       type: Schema.Types.ObjectId,
-      ref: "Category",
+      ref: 'Category',
     },
     isPaid: {
       type: Boolean,
@@ -25,11 +26,23 @@ const postSchema = new Schema(
     },
     tagged: {
       type: [Schema.Types.ObjectId],
-      ref: "User",
+      ref: 'User',
     },
   },
   { timestamps: true }
-);
+)
 
-const Post = new model("Post", postSchema);
-export default Post;
+postSchema.pre('save', async function (next) {
+  await models.PostActivity.create({ userId: this.userId, postId: this._id })
+
+  await models.Activity.create({
+    userId: this.userId,
+    postId: this._id,
+    categoryId: this.categoryId,
+    description: 'Created a post',
+  })
+  next()
+})
+
+const Post = new model('Post', postSchema)
+export default Post

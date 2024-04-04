@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import { Schema, model } from 'mongoose'
 
 const postActivitySchema = new Schema(
   {
@@ -13,7 +13,7 @@ const postActivitySchema = new Schema(
       {
         commentBy: {
           type: Schema.Types.ObjectId,
-          ref: "User",
+          ref: 'User',
         },
         text: String,
         parentId: Schema.Types.ObjectId, // Identifier of the parent comment or reply
@@ -21,21 +21,30 @@ const postActivitySchema = new Schema(
     ],
     postId: {
       type: Schema.Types.ObjectId,
-      ref: "Post",
+      ref: 'Post',
     },
     userId: {
       type: Schema.Types.ObjectId,
-      ref: "User",
+      ref: 'User',
     },
     likedBy: [
       {
         type: Schema.Types.ObjectId,
-        ref: "User",
+        ref: 'User',
       },
     ],
   },
   { timestamps: true }
-);
+)
 
-const PostActivity = new model("PostActivity", postActivitySchema);
-export default PostActivity;
+//todo : business logic
+postActivitySchema.pre('findOneAndUpdate', function (next) {
+  const update = this.getUpdate()
+  const {$addToSet} = update
+  console.log($addToSet)
+
+  next()
+})
+
+const PostActivity = new model('PostActivity', postActivitySchema)
+export default PostActivity

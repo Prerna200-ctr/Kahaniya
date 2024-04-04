@@ -1,8 +1,8 @@
-import { asyncHandler } from "../utils/asyncHandler.js";
-import { ApiError } from "../utils/ApiError.js";
-import { generateAccessToken } from "../utils/generateResetToken.js";
-import { ApiResponse } from "../utils/ApiResponse.js";
-import bcrypt from "bcryptjs";
+import { asyncHandler } from '../utils/asyncHandler.js'
+import { ApiError } from '../utils/ApiError.js'
+import { generateAccessToken } from '../utils/generateResetToken.js'
+import { ApiResponse } from '../utils/ApiResponse.js'
+import bcrypt from 'bcryptjs'
 
 export const register = asyncHandler(async (req, res) => {
   try {
@@ -10,11 +10,11 @@ export const register = asyncHandler(async (req, res) => {
       Context: {
         models: { User, Following, Block },
       },
-    } = req;
+    } = req
 
-    const { body } = req;
+    const { body } = req
 
-    const existingUser = await User.findOne({ email: body?.email });
+    const existingUser = await User.findOne({ email: body?.email })
 
     if (existingUser) {
       throw new ApiError(409, 'User with email or username already exists')
@@ -26,9 +26,10 @@ export const register = asyncHandler(async (req, res) => {
     if (!createdUser) {
       throw new ApiError(500, 'Something went wrong while registering the user')
     }
-    await Following.create({ userId: createdUser?._id })
 
-    res.status(201).json(new ApiResponse(200, createdUser, 'User registered Successfully'))
+    res
+      .status(201)
+      .json(new ApiResponse(200, createdUser, 'User registered Successfully'))
   } catch (error) {
     console.log(error)
     res.status(404).send(error)
@@ -41,9 +42,9 @@ export const login = asyncHandler(async (req, res) => {
       Context: {
         models: { User },
       },
-    } = req;
+    } = req
 
-    const { body } = req;
+    const { body } = req
 
     const existingUser = await User.findOne({
       email: body?.email,
@@ -75,8 +76,8 @@ export const updateUser = asyncHandler(async (req, res) => {
         models: { User },
       },
       user,
-    } = req;
-    const { body } = req;
+    } = req
+    const { body } = req
 
     const update = await User.findByIdAndUpdate(user?._id, body, { new: true })
     res
@@ -95,10 +96,10 @@ export const changePassword = asyncHandler(async (req, res) => {
         models: { User },
       },
       user,
-    } = req;
-    const { body } = req;
+    } = req
+    const { body } = req
 
-    const passwordCorrect = await user.isPasswordCorrect(body?.oldPassword);
+    const passwordCorrect = await user.isPasswordCorrect(body?.oldPassword)
     if (!passwordCorrect) {
       throw new ApiError(409, 'incorrect password')
     }
@@ -120,8 +121,8 @@ export const forgetPassword = asyncHandler(async (req, res) => {
       Context: {
         models: { User },
       },
-    } = req;
-    const { body } = req;
+    } = req
+    const { body } = req
 
     const existingUser = await User.findOne({
       email: body?.email,
@@ -164,10 +165,10 @@ export const resetPassword = asyncHandler(async (req, res) => {
       Context: {
         models: { User },
       },
-    } = req;
-    const { body } = req;
+    } = req
+    const { body } = req
 
-    const { resetToken, newPassword } = body;
+    const { resetToken, newPassword } = body
     const user = await User.findOne({
       resetToken,
       resetTokenExpiry: { $gt: Date.now },

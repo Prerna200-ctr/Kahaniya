@@ -5,6 +5,7 @@ import PostActivity from './PostActivity.js'
 import Following from './Following.js'
 import RequestHistory from './RequestHistory.js'
 import Block from './Block.js'
+import Activity from './Activity.js'
 export const models = {
   User,
   Post,
@@ -13,4 +14,5 @@ export const models = {
   Following,
   RequestHistory,
   Block,
+  Activity,
 }

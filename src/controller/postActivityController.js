@@ -13,24 +13,23 @@ export const likeDislikePosts = asyncHandler(async (req, res) => {
       user,
     } = req
 
-    let postActivity = await PostActivity.findOne({ postId })
+    let filter, update
 
     if (isLike) {
-      if (!postActivity.likedBy.includes(user?._id)) {
-        postActivity.likedBy.push(user?._id)
-        postActivity.like += 1
-      }
-    } else if (postActivity.likedBy.includes(user?._id)) {
-      await PostActivity.findOneAndUpdate(
-        { _id: postActivity?._id },
-        { $pull: { likedBy: user?._id } }
-      )
-      postActivity.like -= 1
+      filter = { postId, likedBy: { $nin: [user?._id] } }
+      update = { $addToSet: { likedBy: user?._id }, $inc: { like: 1 } }
+    } else {
+      filter = { postId, likedBy: { $in: [user?._id] } }
+      update = { $pull: { likedBy: user?._id }, $inc: { like: -1 } }
     }
-    await postActivity.save()
 
-    res.status(201).json(new ApiResponse(200, postActivity.like))
+    await PostActivity.findOneAndUpdate(filter, update)
+
+    res
+      .status(201)
+      .json(new ApiResponse(200, isLike ? 'Liked post' : 'Disliked post'))
   } catch (error) {
+    console.log(error)
     res.status(404).send(error)
   }
 })
@@ -62,7 +61,7 @@ export const getLikesAndComments = asyncHandler(async (req, res) => {
   }
 })
 
-// todo : joi validation
+// todo : joi validation + testing --> done
 export const commentPosts = asyncHandler(async (req, res) => {
   try {
     const {
@@ -73,24 +72,10 @@ export const commentPosts = asyncHandler(async (req, res) => {
       user,
     } = req
 
-    let postActivity = await PostActivity.findOneAndUpdate(
-      {
-        'comment.commentBy': user?._id,
-        postId: postId,
-      },
-      {
-        $push: { 'comment.$.comments': newComment },
-      },
-      { new: true }
-    )
-
-    if (!postActivity) {
-      throw new ApiError(400, 'Post not exist')
-    }
-
     // adding a new comment (consider, parent comment)
     let where,
       response = ''
+
     if (!commentId) {
       where = {
         commentBy: user?._id,
@@ -107,8 +92,16 @@ export const commentPosts = asyncHandler(async (req, res) => {
       }
       response = 'Replied to post'
     }
-    postActivity.comments.push(where)
-    await postActivity.save()
+
+    const postActivity = await PostActivity.findOneAndUpdate(
+      { postId: postId },
+      { $push: { comments: where } },
+      { new: true }
+    )
+
+    if (!postActivity) {
+      throw new ApiError(400, 'Something went wrong')
+    }
 
     res.status(201).send(response)
   } catch (error) {
@@ -234,6 +227,3 @@ export const deleteComment = asyncHandler(async (req, res) => {
     res.status(404).send(error)
   }
 })
-
-
-

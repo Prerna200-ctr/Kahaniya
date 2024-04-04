@@ -30,8 +30,6 @@ export const createPost = asyncHandler(async (req, res) => {
       throw new ApiError(400, 'Something went wrong')
     }
 
-    await PostActivity.create({ postId: post?._id, userId: user?._id })
-
     res.status(201).json(new ApiResponse(200, post, 'Post created'))
   } catch (error) {
     console.log(error)
