@@ -41,22 +41,28 @@ const postActivitySchema = new Schema(
 //todo : business logic
 postActivitySchema.pre('findOneAndUpdate', async function (next) {
   let description, user
-  const { $addToSet, $inc, $pull, $push } = this.getUpdate()
+  const { $addToSet, $inc, $push } = this.getUpdate()
   if ($addToSet && $addToSet.likedBy && $inc.like == 1) {
     user = $addToSet.likedBy
     description = 'Liked a post'
-  } else if ($pull && $pull.likedBy && $inc.like == -1) {
-    user = $pull.likedBy
-    description = 'Disiked a post'
+    let existing = await models.Activity.findOne({ userId: user, description })
+    if (!existing) {
+      await models.Activity.create({
+        userId: user,
+        postId: this._conditions.postId,
+        description,
+      })
+    }
   } else if ($push && $push.comments) {
     user = $push.comments.commentBy
     description = 'Comment a post'
+
+    await models.Activity.create({
+      userId: user,
+      postId: this._conditions.postId,
+      description,
+    })
   }
-  await models.Activity.create({
-    userId: user,
-    postId: this._conditions.postId,
-    description,
-  })
   next()
 })
 
