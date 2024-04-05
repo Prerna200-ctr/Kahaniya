@@ -13,7 +13,6 @@ const followingSchema = new Schema(
         ref: 'User',
       },
     ],
-
     following: [
       {
         type: Schema.Types.ObjectId,

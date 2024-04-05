@@ -1,4 +1,5 @@
 import { Schema, model } from 'mongoose'
+import { models } from '../models/index.js'
 
 const postActivitySchema = new Schema(
   {
@@ -16,7 +17,7 @@ const postActivitySchema = new Schema(
           ref: 'User',
         },
         text: String,
-        parentId: Schema.Types.ObjectId, // Identifier of the parent comment or reply
+        parentId: Schema.Types.ObjectId,
       },
     ],
     postId: {
@@ -38,11 +39,24 @@ const postActivitySchema = new Schema(
 )
 
 //todo : business logic
-postActivitySchema.pre('findOneAndUpdate', function (next) {
-  const update = this.getUpdate()
-  const {$addToSet} = update
-  console.log($addToSet)
-
+postActivitySchema.pre('findOneAndUpdate', async function (next) {
+  let description, user
+  const { $addToSet, $inc, $pull, $push } = this.getUpdate()
+  if ($addToSet && $addToSet.likedBy && $inc.like == 1) {
+    user = $addToSet.likedBy
+    description = 'Liked a post'
+  } else if ($pull && $pull.likedBy && $inc.like == -1) {
+    user = $pull.likedBy
+    description = 'Disiked a post'
+  } else if ($push && $push.comments) {
+    user = $push.comments.commentBy
+    description = 'Comment a post'
+  }
+  await models.Activity.create({
+    userId: user,
+    postId: this._conditions.postId,
+    description,
+  })
   next()
 })
 

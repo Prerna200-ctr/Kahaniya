@@ -15,13 +15,14 @@ export const likeDislikePosts = asyncHandler(async (req, res) => {
 
     let filter, update
 
-    if (isLike) {
-      filter = { postId, likedBy: { $nin: [user?._id] } }
-      update = { $addToSet: { likedBy: user?._id }, $inc: { like: 1 } }
-    } else {
-      filter = { postId, likedBy: { $in: [user?._id] } }
-      update = { $pull: { likedBy: user?._id }, $inc: { like: -1 } }
+    filter = {
+      postId,
+      likedBy: isLike ? { $nin: [user?._id] } : { $in: [user?._id] },
     }
+
+    update = isLike
+      ? { $addToSet: { likedBy: user?._id }, $inc: { like: 1 } }
+      : { $pull: { likedBy: user?._id }, $inc: { like: -1 } }
 
     await PostActivity.findOneAndUpdate(filter, update)
 
